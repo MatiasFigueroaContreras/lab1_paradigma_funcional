@@ -22,21 +22,37 @@
                            (insertCard (firstCardGeneration elements (- numE 1)) (unionCardsSet (nCardGeneration elements (- numE 1) (- maxC 1)) (n2CardGeneration elements (- numE 1) (- maxC numE))))))
                    null)))
 
-(define numCards (lambda (cS)
-                   (define recursion (lambda (cS l)
-                                       (if (null? cS) l
-                                           (recursion (nextCards cS) (+ l 1)))))
-                   (recursion cS 0)))
+(define dobble? (lambda (cardsSet)
+                  (cond
+                    [(not (andmap elementsList? cardsSet)) #f]
+                    [(not (andmap (lambda (x) (= (elementsListLenght (firstCard cardsSet)) x)) (map elementsListLenght cardsSet))) #f]
+                    [else
+                     (define recursion (lambda (cS1 cS2)
+                                             (define recursion2 (lambda (cS3)
+                                                                  (cond
+                                                                    [(null? cS3) (recursion (nextElements cS1) (nextElements cS2))]
+                                                                    [(not (oneCommonElement? (firstElement cS1) (firstElement cS3))) #f]
+                                                                    [else (recursion2 (nextElements cS3))])))
+                                             (if (null? cS2)
+                                                 #t
+                                                 (recursion2 cS2))))
+                         (recursion cardsSet (nextElements cardsSet))])))
 
-(define nthCard (lambda (cS n)
+(define numCards (lambda (cardsSet)
+                   (define recursion (lambda (cardsSet l)
+                                       (if (null? cardsSet) l
+                                           (recursion (nextCards cardsSet) (+ l 1)))))
+                   (recursion cardsSet 0)))
+
+(define nthCard (lambda (cardsSet n)
                   (if (= n 0)
-                         (firstCard cS)
-                         (nthElement (nextCards cS) (- n 1)))))
+                         (firstCard cardsSet)
+                         (nthElement (nextCards cardsSet) (- n 1)))))
 
-(define findTotalCards (lambda (eL)
+(define findTotalCards (lambda (card)
                          (define totalCards (lambda (numE) (+ (- (* numE numE) numE) 1)))
-                         (totalCards (elementsListLenght eL))))
+                         (totalCards (elementsListLenght card))))
 
-(define requiredElements (lambda (eL)
+(define requiredElements (lambda (card)
                          (define totalCards (lambda (numE) (+ (- (* numE numE) numE) 1)))
-                         (totalCards (elementsListLenght eL))))
+                         (totalCards (elementsListLenght card))))

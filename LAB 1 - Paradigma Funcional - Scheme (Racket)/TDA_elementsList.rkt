@@ -13,7 +13,9 @@ Descripcion: crea una lista de elementos
 Dominio: elements (puedens ser varios)
 Recorrido: elementsList
 |#
-(define createElementsList (lambda x list x))
+(define createElementsList (lambda x (if (elementsList? x)
+                                         x
+                                         null)))
 
 #|
 Operacion: Constructor
@@ -21,7 +23,10 @@ Descripcion: crea una lista de elementos
 Dominio: numbers + strings (pueden ser varios)
 Recorrido: elementsList
 |#
-(define createElementsAndList (lambda x (map element x)))
+(define createElementsAndList (lambda x (define eL (lazy  (map element x)))
+                                (if (elementsList? (force eL))
+                                    (force eL)
+                                    null)))
 
 (define createElementsList-NtoM (lambda (start end)
                                   (define recursion (lambda (i eL)
@@ -30,6 +35,19 @@ Recorrido: elementsList
                                                           (recursion (- i 1) (insertElement (element i) eL)))))
                                   (recursion end null)))
 
+(define elementsList? (lambda (eL)
+                         (define recursion (lambda (eL1 eL2)
+                                             (define recursion2 (lambda (eL3)
+                                                                  (cond
+                                                                    [(null? eL3) (recursion (nextElements eL1) (nextElements eL2))]
+                                                                    [(element=? (firstElement eL1) (firstElement eL3)) #f]
+                                                                    [else (recursion2 (nextElements eL3))])))
+                                             (if (null? eL2)
+                                                 #t
+                                                 (recursion2 eL2))))
+                         (if (andmap element? eL)
+                             (recursion eL (nextElements eL))
+                             #f)))
 
 #|
 Operacion: Pertenencia
@@ -92,3 +110,13 @@ Recursion: Cola
                                                  (if (null? eL) l
                                                      (recursion (nextElements eL) (+ l 1)))))
                              (recursion eL 0)))
+
+(define oneCommonElement? (lambda (card1 card2)
+                            (define recursion (lambda (eL1 eL2 count)
+                                                (cond
+                                                  [(< 1 count) #f]
+                                                  [(null? eL1) (if (= count 1) #t #f)]
+                                                  [(null? eL2) (recursion (nextElements eL1) card2 count)]
+                                                  [(element=? (firstElement eL1) (firstElement eL2)) (recursion eL1 (nextElements eL2) (+ count 1))]
+                                                  [else (recursion eL1 (nextElements eL2) count)])))
+                            (recursion card1 card2 0)))

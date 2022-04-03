@@ -14,6 +14,8 @@ recorrido: string
 |#
 (define element (lambda (x) (if (number? x) (number->string x) x)))
 
+(define element? (lambda (e) (if (string? e) #t #f)))
+
 #|
 Operacion: Otro
 Descripcion: Comparacion de dos elementos
