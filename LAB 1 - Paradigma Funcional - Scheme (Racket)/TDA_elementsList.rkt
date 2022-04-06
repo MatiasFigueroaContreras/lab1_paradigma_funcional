@@ -94,9 +94,11 @@ Recursion: Cola
 (define insertElement (lambda (e eL) (cons e eL)))
 
 (define unionElementsList (lambda (eL1 eL2)
-                        (if (null? eL1)
-                            eL2
-                            (unionElementsList (nextElements eL1) (insertElement (firstElement eL1) eL2)))))
+                             (cond
+                               [(null? eL1) eL2]
+                               [(isElementList? eL2 (firstElement eL1)) (unionElementsList (nextElements eL1) eL2)]
+                               [else (unionElementsList (nextElements eL1) (insertElement (firstElement eL1) eL2))])))
+
 
 #|
 Operacion: Otro

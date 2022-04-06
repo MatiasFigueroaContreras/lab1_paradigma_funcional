@@ -56,3 +56,12 @@
 (define requiredElements (lambda (card)
                          (define totalCards (lambda (numE) (+ (- (* numE numE) numE) 1)))
                          (totalCards (elementsListLenght card))))
+
+
+(define cardsSet->string (lambda (cardsSet)
+                           (define recursion (lambda (cardsSet i string)
+                                              (if (null? cardsSet)
+                                                  string
+                                                  (recursion (nextCards cardsSet) (+ i 1) (string-append* string "\n" "card n°" (number->string i) ": " (nextCards (append* (map (lambda (x) (list ", " x)) (firstCard cardsSet)))))))))
+                           (recursion cardsSet 1 "")))
+
