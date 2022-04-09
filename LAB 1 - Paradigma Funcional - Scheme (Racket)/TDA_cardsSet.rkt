@@ -95,6 +95,15 @@ Recorrido: cardsSet
 Recursion: Cola
 |#
 (define unionCardsSet (lambda (cS1 cS2)
-                        (if (null? cS1)
+                        (if (emptyCardsSet? cS1)
                             cS2
                             (unionCardsSet (nextCards cS1) (insertCard (firstCard cS1) cS2)))))
+
+(define emptyCardsSet? (lambda (cS) (null? cS)))
+
+(define elementsCardsSet (lambda (cS)
+                           (define recursion (lambda (cS R)
+                                               (if (emptyCardsSet? cS)
+                                                   R
+                                               (recursion (nextElements cS) (unionElementsList R (firstElement cS))))))
+                           (recursion cS null)))

@@ -14,40 +14,42 @@
                  ))
 
 (define cardsSet (lambda (elements numE maxC rndFn)
-                   (if (prime? (- numE 1))
-                   (if (< (elementsListLenght elements) (+ (- (* numE numE) numE) 1))
-                       (cardsSet (createElementsList-NtoM 1 (+ (- (* numE numE) numE) 1)) numE maxC rndFn)
-                       (if (<= maxC 0)
-                           (cardsSet elements numE (+ (- (* numE numE) numE) 1) rndFn)
-                           (insertCard (firstCardGeneration elements (- numE 1)) (unionCardsSet (nCardGeneration elements (- numE 1) (- maxC 1)) (n2CardGeneration elements (- numE 1) (- maxC numE))))))
-                   null)))
+                   (let ([nCards (+ (- (* numE numE) numE) 1)] [n (- numE 1)])
+                     (if (prime? n)
+                         (if (<= maxC 0)
+                             (cardsSet elements numE nCards rndFn)
+                             (if (< (elementsListLenght elements) nCards)
+                                 (let ([newElements (insertXElements elements (- nCards (elementsListLenght elements)))])
+                                   (insertCard (firstCardGeneration newElements n) (unionCardsSet (nCardGeneration newElements n (- maxC 1)) (n2CardGeneration newElements n (- maxC numE)))))
+                                 (insertCard (firstCardGeneration elements n) (unionCardsSet (nCardGeneration elements n (- maxC 1)) (n2CardGeneration elements n (- maxC numE))))))
+                         null))))
+                   
 
-(define dobble? (lambda (cardsSet)
+(define dobble? (lambda (cS)
                   (cond
-                    [(not (andmap elementsList? cardsSet)) #f]
-                    [(not (andmap (lambda (x) (= (elementsListLenght (firstCard cardsSet)) x)) (map elementsListLenght cardsSet))) #f]
+                    [(emptyCardsSet? cS) #f]
+                    [(not (andmap elementsList? cS)) #f]
+                    [(not (andmap (lambda (x) (= (elementsListLenght (firstCard cS)) x)) (map elementsListLenght cS))) #f]
                     [else
                      (define recursion (lambda (cS1 cS2)
                                              (define recursion2 (lambda (cS3)
                                                                   (cond
-                                                                    [(null? cS3) (recursion (nextElements cS1) (nextElements cS2))]
+                                                                    [(emptyCardsSet? cS3) (recursion (nextElements cS1) (nextElements cS2))]
                                                                     [(not (oneCommonElement? (firstElement cS1) (firstElement cS3))) #f]
                                                                     [else (recursion2 (nextElements cS3))])))
-                                             (if (null? cS2)
+                                             (if (emptyCardsSet? cS2)
                                                  #t
                                                  (recursion2 cS2))))
-                         (recursion cardsSet (nextElements cardsSet))])))
+                         (recursion cS (nextElements cS))])))
 
-(define numCards (lambda (cardsSet)
-                   (define recursion (lambda (cardsSet l)
-                                       (if (null? cardsSet) l
-                                           (recursion (nextCards cardsSet) (+ l 1)))))
-                   (recursion cardsSet 0)))
 
-(define nthCard (lambda (cardsSet n)
+(define numCards (lambda (cS)
+                   (apply + (map (lambda (x) 1) cS))))                   
+
+(define nthCard (lambda (cS n)
                   (if (= n 0)
-                         (firstCard cardsSet)
-                         (nthElement (nextCards cardsSet) (- n 1)))))
+                         (firstCard cS)
+                         (nthCard (nextCards cS) (- n 1)))))
 
 (define findTotalCards (lambda (card)
                          (define totalCards (lambda (numE) (+ (- (* numE numE) numE) 1)))
@@ -57,11 +59,34 @@
                          (define totalCards (lambda (numE) (+ (- (* numE numE) numE) 1)))
                          (totalCards (elementsListLenght card))))
 
+(define missingCards (lambda (cS)
+                       (if (dobble? cS)
+                           (let ([numE (elementsListLenght (firstCard cS))] [elements (elementsCardsSet cS)] )
+                             (let ([elements (insertXElements elements (- (+ (- (* numE numE) numE) 1) (elementsListLenght elements)))] [nCards (+ (- (* numE numE) numE) 1)])
+                               (define recursion (lambda (cS R)
+                                                   (define missingCard (lambda (eL numAeL card)
+                                                      (if  (= (elementsListLenght card) numE)
+                                                          card
+                                                          (if (emptyElementsList? eL)
+                                                              null
+                                                              (if (and (< (firstElement numAeL) numE) (andmap (lambda (x) (if (<= x 1) #t #f)) (map (commonElements (insertElement (firstElement eL) card)) cS)))
+                                                                  (let ([missedCard (missingCard (nextElements eL) (nextElements numAeL) (insertElement (firstElement eL) card))])
+                                                                    (if (null? missedCard)
+                                                                        (missingCard (nextElements eL) (nextElements numAeL) card)
+                                                                        missedCard))
+                                                                    (missingCard (nextElements eL) (nextElements numAeL) card))))))
+                                                   (define numAppearencesElements (lambda (eL cS) (map (lambda (e) (numCards (filter (lambda (card) (isElementList? card e)) cS))) eL)))
+                                                   (if (= (numCards cS) nCards)
+                                                       R
+                                                       (let ([missedCard (missingCard elements (numAppearencesElements elements cS) null)])
+                                                         (recursion (insertCard missedCard cS) (insertCard missedCard R))))))
+                               (recursion cS null)))
+                           null)))
 
-(define cardsSet->string (lambda (cardsSet)
-                           (define recursion (lambda (cardsSet i string)
-                                              (if (null? cardsSet)
+(define cardsSet->string (lambda (cS)
+                           (define recursion (lambda (cS i string)
+                                              (if (emptyCardsSet? cS)
                                                   string
-                                                  (recursion (nextCards cardsSet) (+ i 1) (string-append* string "\n" "card n°" (number->string i) ": " (nextCards (append* (map (lambda (x) (list ", " x)) (firstCard cardsSet)))))))))
-                           (recursion cardsSet 1 "")))
+                                                  (recursion (nextCards cS) (+ i 1) (string-append* string "\n" "card n°" (number->string i) ": " (nextCards (append* (map (lambda (x) (list ", " x)) (firstCard cS)))))))))
+                           (recursion cS 1 "")))
 

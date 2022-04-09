@@ -39,10 +39,10 @@ Recorrido: elementsList
                          (define recursion (lambda (eL1 eL2)
                                              (define recursion2 (lambda (eL3)
                                                                   (cond
-                                                                    [(null? eL3) (recursion (nextElements eL1) (nextElements eL2))]
+                                                                    [(emptyElementsList? eL3) (recursion (nextElements eL1) (nextElements eL2))]
                                                                     [(element=? (firstElement eL1) (firstElement eL3)) #f]
                                                                     [else (recursion2 (nextElements eL3))])))
-                                             (if (null? eL2)
+                                             (if (emptyElementsList? eL2)
                                                  #t
                                                  (recursion2 eL2))))
                          (if (andmap element? eL)
@@ -57,7 +57,7 @@ Recorrido: boolean
 Recursion: Cola
 |#
 (define isElementList? (lambda (eL e)
-                     (if (null? eL)
+                     (if (emptyElementsList? eL)
                          #f
                          (if (element=? (firstElement eL) e)
                              #t
@@ -95,7 +95,7 @@ Recursion: Cola
 
 (define unionElementsList (lambda (eL1 eL2)
                              (cond
-                               [(null? eL1) eL2]
+                               [(emptyElementsList? eL1) eL2]
                                [(isElementList? eL2 (firstElement eL1)) (unionElementsList (nextElements eL1) eL2)]
                                [else (unionElementsList (nextElements eL1) (insertElement (firstElement eL1) eL2))])))
 
@@ -109,16 +109,33 @@ Recursion: Cola
 |#
 (define elementsListLenght (lambda (eL)
                              (define recursion (lambda (eL l)
-                                                 (if (null? eL) l
+                                                 (if (emptyElementsList? eL) l
                                                      (recursion (nextElements eL) (+ l 1)))))
                              (recursion eL 0)))
 
-(define oneCommonElement? (lambda (card1 card2)
-                            (define recursion (lambda (eL1 eL2 count)
-                                                (cond
-                                                  [(< 1 count) #f]
-                                                  [(null? eL1) (if (= count 1) #t #f)]
-                                                  [(null? eL2) (recursion (nextElements eL1) card2 count)]
-                                                  [(element=? (firstElement eL1) (firstElement eL2)) (recursion eL1 (nextElements eL2) (+ count 1))]
-                                                  [else (recursion eL1 (nextElements eL2) count)])))
-                            (recursion card1 card2 0)))
+(define emptyElementsList? (lambda (eL) (null? eL)))
+
+(define commonElements (lambda (eL1) (lambda (eL2)
+                                       (define counter (lambda (eL1 eL2 count)
+                                                         (if (emptyElementsList? eL2)
+                                                             count
+                                                             (if (isElementList? eL1 (firstElement eL2))
+                                                                 (counter eL1 (nextElements eL2) (+ count 1))
+                                                                 (counter eL1 (nextElements eL2) count)))))
+                                       (counter eL1 eL2 0))))
+                               
+
+(define oneCommonElement? (lambda (eL1 eL2)
+                            (if (= 1 ((commonElements eL1) eL2))
+                                #t
+                                #f)))
+
+(define insertXElements (lambda (eL x)
+                          (define recursion (lambda (i x eL2)
+                                       (if (= i x)
+                                           (unionElementsList eL eL2)
+                                           (if (isElementList? eL (element x))
+                                               (recursion (- i 1) (- x 1) eL2)
+                                               (recursion i (- x 1) (insertElement (element x) eL2))))))
+                          (recursion 0 x null)))
+
