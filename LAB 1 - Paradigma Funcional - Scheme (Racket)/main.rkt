@@ -1,6 +1,8 @@
 #lang racket
 (require "TDA_elementsList.rkt")
 (require "TDA_cardsSet.rkt")
+(require "TDA_gamersInfo.rkt")
+(require "TDA_game.rkt")
 (require (only-in math/number-theory prime?))
 
 (define el (createElementsAndList "A" "B" "C" "D" "E" "F" "G"))
@@ -90,3 +92,15 @@
                                                   (recursion (nextCards cS) (+ i 1) (string-append* string "\n" "card n°" (number->string i) ": " (nextCards (append* (map (lambda (x) (list ", " x)) (firstCard cS)))))))))
                            (recursion cS 1 "")))
 
+(define game(lambda (numPlayers cardsSet mode rndFn)
+               (list (initGamersInfo numPlayers) cardsSet "En juego" mode rndFn)))
+
+(define register (lambda (user gm)
+                   (let ([gsInfo (getGamersInfo gm)] [cS (getCardsSet gm)] [st (status gm)] [mode (getMode gm)] [rndFn (getRandomFn gm)])
+                     (setGame (newGamer user gsInfo) cS st mode rndFn))))
+
+(define whoseTurnIsIt? (lambda (gm) (getGamerTurn (getGamersInfo gm))))
+
+(define status (lambda (gm) (caddr gm)))
+
+(define score (lambda (gm user) (getGamerScore (getGamersInfo gm) user)))
