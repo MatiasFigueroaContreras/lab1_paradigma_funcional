@@ -139,3 +139,13 @@ Recursion: Cola
                                                (recursion i (- x 1) (insertElement (element x) eL2))))))
                           (recursion 0 x null)))
 
+(define elementsList=? (lambda (eL1) (lambda (eL2)
+                         (define recursion (lambda (eL1 eL2)
+                           (if (null? eL1)
+                              #t
+                              (if (isElementList? eL2 (firstElement eL1))
+                              (recursion (nextElements eL1) eL2)
+                              #f))))
+                          (if (= (elementsListLenght eL1) (elementsListLenght eL2))
+                              (recursion eL1 eL2)
+                              #f))))

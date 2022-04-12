@@ -4,7 +4,7 @@
 (require "TDA_gamersInfo.rkt")
 (require "TDA_gameArea.rkt")
 (require "TDA_game.rkt")
-(require (only-in math/number-theory prime?))
+(require (only-in math/number-theory prime-power?))
 
 (define el (createElementsAndList "A" "B" "C" "D" "E" "F" "G"))
 
@@ -18,7 +18,7 @@
 
 (define cardsSet (lambda (elements numE maxC rndFn)
                    (let ([nCards (+ (- (* numE numE) numE) 1)] [n (- numE 1)])
-                     (if (prime? n)
+                     (if (prime-power? n)
                          (if (<= maxC 0)
                              (cardsSet elements numE nCards rndFn)
                              (if (< (elementsListLenght elements) nCards)
@@ -93,7 +93,7 @@
                            (recursion cS 1 "")))
 
 (define game(lambda (numPlayers cardsSet mode rndFn)
-               (list (initGamersInfo numPlayers) (setCardsSet emptyGameArea cardsSet) "En juego" mode rndFn)))
+               (list (initGamersInfo numPlayers) (setCardsSet emptyGameArea cardsSet) "esperando cartas en mesa" mode rndFn)))
 
 (define stackMode (lambda (cS)
                     (if (or (emptyCardsSet? cS) (emptyCardsSet? (nextCards cS)) )
@@ -110,7 +110,7 @@
                (if (string=? (status gm) "terminado")
                    gm
                    (if (null? action)
-                       (let ([gsInfo (getGamersInfo gm)] [gA (getGameArea gm)] [st (status gm)] [mode (getMode gm)] [rndFn (getRandomFn gm)])
+                       (let ([gsInfo (getGamersInfo gm)] [gA (getGameArea gm)] [mode (getMode gm)] [rndFn (getRandomFn gm)])
                          (let ([cSP (mode (getCardsSet gA))])
                            (if (null? cSP)
                                (setGame gsInfo (setCardsInPlay gA cSP) "terminado" mode rndFn)
@@ -118,12 +118,21 @@
                        (action gm)))))
 
 (define spotIt (lambda (e) (lambda (gm)
-                             (if (string=? (status gm) "terminado")
+                             (if (or (string=? (status gm) "terminado") (not (string=? (status gm) "cartas en mesa")))
                                  gm
-                                 (let ([gsInfo (getGamersInfo gm)] [gA (getGameArea gm)] [st (status gm)] [mode (getMode gm)] [rndFn (getRandomFn gm)])
+                                 (let ([gsInfo (getGamersInfo gm)] [gA (getGameArea gm)] [mode (getMode gm)] [rndFn (getRandomFn gm)])
                                    (if (and (isElementList? (firstCard (getCardsInPlay gA)) e) (isElementList? (firstCard (nextCards (getCardsInPlay gA))) e))
                                        (setGame gsInfo gA "spotIt" mode rndFn)
                                        (setGame gsInfo gA "notSpotIt" mode rndFn)))))))
+
+(define pass (lambda (gm)
+               (if (or (string=? (status gm) "terminado") (string=? (status gm) "esperando cartas en mesa"))
+                   gm
+                   (let ([gsInfo (getGamersInfo gm)] [gA (getGameArea gm)] [st (status gm)] [mode (getMode gm)] [rndFn (getRandomFn gm)])
+                     (let ([cS (cardsSetSubstraction (getCardsSet gA) (getCardsInPlay gA))])
+                       (if (string=? st "spotIt")
+                           (setGame (nextTurn (addScore gsInfo)) (setCardsSet (setCardsInPlay gA null) cS) "esperando cartas en mesa" mode rndFn)
+                           (setGame (nextTurn gsInfo) (setCardsSet (setCardsInPlay gA null) (unionCardsSet (reverseCardsSet cS) (getCardsInPlay gA))) "esperando cartas en mesa" mode rndFn)))))))
 
 (define status (lambda (gm) (caddr gm)))
 

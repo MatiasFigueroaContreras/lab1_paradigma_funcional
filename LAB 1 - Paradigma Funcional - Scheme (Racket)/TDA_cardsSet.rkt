@@ -109,3 +109,14 @@ Recursion: Cola
                                                    R
                                                (recursion (nextElements cS) (unionElementsList R (firstElement cS))))))
                            (recursion cS null)))
+
+(define cardsSetSubstraction (lambda (cS1 cS2)
+                               (define recursion (lambda (cS1 cSR)
+                                                   (if (emptyCardsSet? cS1)
+                                                       cSR
+                                                       (if (emptyCardsSet?  (filter (elementsList=? (firstCard cS1)) cS2))
+                                                           (recursion (nextCards cS1) (insertCard (firstCard cS1) cSR))
+                                                           (recursion (nextCards cS1) cSR)))))
+                               (recursion cS1 null)))
+
+(define reverseCardsSet (lambda (cS) (unionCardsSet cS null)))
