@@ -2,6 +2,7 @@
 (require "TDA_elementsList.rkt")
 (require "TDA_cardsSet.rkt")
 (require "TDA_gamersInfo.rkt")
+(require "TDA_gameArea.rkt")
 (require "TDA_game.rkt")
 (require (only-in math/number-theory prime?))
 
@@ -43,7 +44,6 @@
                                                  #t
                                                  (recursion2 cS2))))
                          (recursion cS (nextElements cS))])))
-
 
 (define numCards (lambda (cS)
                    (apply + (map (lambda (x) 1) cS))))                   
@@ -93,13 +93,37 @@
                            (recursion cS 1 "")))
 
 (define game(lambda (numPlayers cardsSet mode rndFn)
-               (list (initGamersInfo numPlayers) cardsSet "En juego" mode rndFn)))
+               (list (initGamersInfo numPlayers) (setCardsSet emptyGameArea cardsSet) "En juego" mode rndFn)))
+
+(define stackMode (lambda (cS)
+                    (if (or (emptyCardsSet? cS) (emptyCardsSet? (nextCards cS)) )
+                        emptyCardsSet
+                        (insertCard (firstCard (nextCards cS)) (insertCard (firstCard cS) emptyCardsSet)))))
 
 (define register (lambda (user gm)
-                   (let ([gsInfo (getGamersInfo gm)] [cS (getCardsSet gm)] [st (status gm)] [mode (getMode gm)] [rndFn (getRandomFn gm)])
-                     (setGame (newGamer user gsInfo) cS st mode rndFn))))
+                   (let ([gsInfo (getGamersInfo gm)] [gA (getGameArea gm)] [st (status gm)] [mode (getMode gm)] [rndFn (getRandomFn gm)])
+                     (setGame (newGamer user gsInfo) gA st mode rndFn))))
 
 (define whoseTurnIsIt? (lambda (gm) (getGamerTurn (getGamersInfo gm))))
+
+(define play (lambda (gm action)
+               (if (string=? (status gm) "terminado")
+                   gm
+                   (if (null? action)
+                       (let ([gsInfo (getGamersInfo gm)] [gA (getGameArea gm)] [st (status gm)] [mode (getMode gm)] [rndFn (getRandomFn gm)])
+                         (let ([cSP (mode (getCardsSet gA))])
+                           (if (null? cSP)
+                               (setGame gsInfo (setCardsInPlay gA cSP) "terminado" mode rndFn)
+                               (setGame gsInfo (setCardsInPlay gA cSP) "cartas en mesa" mode rndFn))))
+                       (action gm)))))
+
+(define spotIt (lambda (e) (lambda (gm)
+                             (if (string=? (status gm) "terminado")
+                                 gm
+                                 (let ([gsInfo (getGamersInfo gm)] [gA (getGameArea gm)] [st (status gm)] [mode (getMode gm)] [rndFn (getRandomFn gm)])
+                                   (if (and (isElementList? (firstCard (getCardsInPlay gA)) e) (isElementList? (firstCard (nextCards (getCardsInPlay gA))) e))
+                                       (setGame gsInfo gA "spotIt" mode rndFn)
+                                       (setGame gsInfo gA "notSpotIt" mode rndFn)))))))
 
 (define status (lambda (gm) (caddr gm)))
 

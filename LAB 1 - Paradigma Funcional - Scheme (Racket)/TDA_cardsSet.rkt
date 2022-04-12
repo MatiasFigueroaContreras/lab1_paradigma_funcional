@@ -63,6 +63,8 @@ Recursion: Cola
                                                       (recursion i (- j 1) (insertCard (insertElement (nthElement elements i) (recursion2 n null)) cardsList) (- cardsCount 1))))))
                           (recursion n n null cardsCount)))
 
+(define emptyCardsSet null)
+
 #|
 Operacion: Selector
 Descripcion: Permite obtener la primera carta(elementsList) de una mazo de cartas (cardsSet)

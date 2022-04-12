@@ -57,7 +57,7 @@ Recorrido: boolean
 Recursion: Cola
 |#
 (define isElementList? (lambda (eL e)
-                     (if (emptyElementsList? eL)
+                     (if (or (emptyElementsList? eL) (not (element? e)))
                          #f
                          (if (element=? (firstElement eL) e)
                              #t
