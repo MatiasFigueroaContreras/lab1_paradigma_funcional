@@ -30,6 +30,15 @@
                            (firstPoint gP)
                            (nthPoint (nextPoints gP) (- n 1))))))
 
+(define maxPoints (lambda (gP)
+                    (define recursion (lambda (gP max)
+                                        (if (emptyGamersPoints? gP)
+                                            max
+                                            (if (< max (firstPoint gP))
+                                                (recursion (nextPoints gP) (firstPoint gP))
+                                                (recursion (nextPoints gP) max)))))
+                    (recursion gP -1)))
+
 (define addPoints (lambda (gP p n)
                     (if (or (< n 1) (null? gP))
                         gP

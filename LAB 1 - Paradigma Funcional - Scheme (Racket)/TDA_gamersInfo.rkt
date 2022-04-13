@@ -39,6 +39,27 @@
                    (let ([numG (getNumG gI)] [gTurn (getTurn gI)] [g (getGamers gI)] [gP (getGamersPoints gI)])
                      (gamersInfo numG gTurn g (addPoints gP 1 gTurn)))))
 
+(define getWinners (lambda (gI)
+                     (define recursion (lambda (g gP R max)
+                                         (if (emptyGamersPoints? gP)
+                                             R
+                                             (if (= max (firstPoint gP))
+                                                 (recursion (nextGamers g) (nextPoints gP) (cons (firstGamer g) R) max)
+                                                 (recursion (nextGamers g) (nextPoints gP) R max)))))
+                     (recursion (getGamers gI) (getGamersPoints gI) null (maxPoints (getGamersPoints gI)))))
+
+(define getLosers (lambda (gI)
+                    (define recursion (lambda (g gP R max)
+                                         (if (emptyGamersPoints? gP)
+                                              R
+                                             (if (> max (firstPoint gP))
+                                                 (recursion (nextGamers g) (nextPoints gP) (cons (firstGamer g) R) max)
+                                                 (recursion (nextGamers g) (nextPoints gP) R max)))))
+                    (recursion (getGamers gI) (getGamersPoints gI) null (maxPoints (getGamersPoints gI)))))
+
+(define winnersLosersString (lambda (gI)
+                        (string-append* (string-append* "Ganadores:\n" (cdr (append* (map (lambda (x) (list ", " x)) (getWinners gI))))) "\n\nPerdedores:\n" (cdr (append* (map (lambda (x) (list ", " x)) (getLosers gI)))))))
+
 (define gamersInfo->string (lambda (gI)
                              (define gamersNamesPoints->string (lambda (g gP i string)
                                                                  (if (emptyGamers? g)
@@ -50,6 +71,4 @@
                                                "\nNumero de jugadores Registrados: " (number->string (totalGamers g))
                                                "\nTurno del jugador: n°" (number->string gTurn)
                                                "\nJugadores Registrados: " (gamersNamesPoints->string g gP 1 "") null))))
-
-
 

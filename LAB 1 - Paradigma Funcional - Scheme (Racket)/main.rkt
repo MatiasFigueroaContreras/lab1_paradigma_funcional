@@ -134,6 +134,22 @@
                            (setGame (nextTurn (addScore gsInfo)) (setCardsSet (setCardsInPlay gA null) cS) "esperando cartas en mesa" mode rndFn)
                            (setGame (nextTurn gsInfo) (setCardsSet (setCardsInPlay gA null) (unionCardsSet (reverseCardsSet cS) (getCardsInPlay gA))) "esperando cartas en mesa" mode rndFn)))))))
 
+(define finish (lambda (gm)
+                 (let ([gsInfo (getGamersInfo gm)] [gA (getGameArea gm)] [st (status gm)] [mode (getMode gm)] [rndFn (getRandomFn gm)])
+                   (display (winnersLosersString gsInfo))
+                   (setGame gsInfo gA "terminado" mode rndFn))))
+
 (define status (lambda (gm) (caddr gm)))
 
 (define score (lambda (gm user) (getGamerScore (getGamersInfo gm) user)))
+
+(define game->string (lambda (gm)
+                       (let ([gsInfo (getGamersInfo gm)] [st (status gm)])
+                         (if (string=? "terminado" st)
+                             (string-append* "Estatus del juego: " st "\n" (winnersLosersString gsInfo) "\n" (gamersInfo->string gsInfo))
+                             (string-append* "Estatus del juego: " st "\n" (gamersInfo->string gsInfo) null)))))
+
+(define addCard (lambda (cS card)
+                  (if (dobble? (cons card cS))
+                      (cons card cS)
+                      cS)))
