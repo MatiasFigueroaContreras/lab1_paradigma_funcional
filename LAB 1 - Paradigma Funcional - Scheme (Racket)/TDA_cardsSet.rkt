@@ -63,6 +63,12 @@ Recursion: Cola
                                                       (recursion i (- j 1) (insertCard (insertElement (nthElement elements i) (recursion2 n null)) cardsList) (- cardsCount 1))))))
                           (recursion n n null cardsCount)))
 
+#|
+Operacion: Constructor
+Descripcion: crea un set de una carta vacio
+Dominio: 
+Recorrido: cardsSet
+|#
 (define emptyCardsSet null)
 
 #|
@@ -101,8 +107,22 @@ Recursion: Cola
                             cS2
                             (unionCardsSet (nextCards cS1) (insertCard (firstCard cS1) cS2)))))
 
+#|
+Operacion: Pertenencia
+Descripcion: consulta si un set de cartas es vacio
+Dominio: cardsSet
+Recorrido: boolean
+|#
 (define emptyCardsSet? (lambda (cS) (null? cS)))
 
+
+#|
+Operacion: Otro
+Descripcion: devuelve todos los elementos que contiene un set de cartas (sin repeticion de estos)
+Dominio: cardsSet
+Recorrido: elementsList
+Recursion: de Cola
+|#
 (define elementsCardsSet (lambda (cS)
                            (define recursion (lambda (cS R)
                                                (if (emptyCardsSet? cS)
@@ -110,6 +130,12 @@ Recursion: Cola
                                                (recursion (nextElements cS) (unionElementsList R (firstElement cS))))))
                            (recursion cS null)))
 
+#|
+Operacion: Otro
+Descripcion: hace la resta de dos set de cartas (funciona igual que una resta de conjuntos)
+Dominio: cardsSet X cardsSet
+Recorrido: cardsSet
+|#
 (define cardsSetSubstraction (lambda (cS1 cS2)
                                (define recursion (lambda (cS1 cSR)
                                                    (if (emptyCardsSet? cS1)
@@ -119,4 +145,10 @@ Recursion: Cola
                                                            (recursion (nextCards cS1) cSR)))))
                                (recursion cS1 null)))
 
+#|
+Operacion: Otro
+Descripcion: da vuelta la orientacion de un set de cartas
+Dominio: cardsSet
+Recorrido: cardsSet
+|#
 (define reverseCardsSet (lambda (cS) (unionCardsSet cS null)))

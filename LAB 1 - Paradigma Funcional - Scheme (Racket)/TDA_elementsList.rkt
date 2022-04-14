@@ -35,6 +35,12 @@ Recorrido: elementsList
                                                           (recursion (- i 1) (insertElement (element i) eL)))))
                                   (recursion end null)))
 
+#|
+Operacion: Pertenencia
+Descripcion: verifica si una lista de elementos efectivamente lo es.
+Dominio: elementsList
+Recorrido: boolean
+|#
 (define elementsList? (lambda (eL)
                          (define recursion (lambda (eL1 eL2)
                                              (define recursion2 (lambda (eL3)
@@ -91,8 +97,21 @@ Recursion: Cola
                          (firstElement eL)
                          (nthElement (nextElements eL) (- n 1)))))
 
+#|
+Operacion: Modificador
+Descripcion: inserta un elemento a una lista de elemenots
+Dominio: element X elementsList
+Recorrido: elementsList
+|#
 (define insertElement (lambda (e eL) (cons e eL)))
 
+#|
+Operacion: Otro
+Descripcion: une dos listas de elementos
+Dominio: elementsList X elementsList
+Recorrido: elementsList
+Recursion: de Cola
+|#
 (define unionElementsList (lambda (eL1 eL2)
                              (cond
                                [(emptyElementsList? eL1) eL2]
@@ -113,8 +132,22 @@ Recursion: Cola
                                                      (recursion (nextElements eL) (+ l 1)))))
                              (recursion eL 0)))
 
+#|
+Operacion: Pertenencia
+Descripcion: verifica si una lista de elementos es vacia
+Dominio: elementsList
+Recorrido: boolean
+|#
 (define emptyElementsList? (lambda (eL) (null? eL)))
 
+#|
+Operacion: Otro
+Descripcion: calcula la cantidad de elementos que tienen en comun dos listas de elementos
+Dominio: elementsList (X elementsList)
+Recorrido: int
+Recursion: de Cola
+Funcion currificada
+|#
 (define commonElements (lambda (eL1) (lambda (eL2)
                                        (define counter (lambda (eL1 eL2 count)
                                                          (if (emptyElementsList? eL2)
@@ -125,11 +158,24 @@ Recursion: Cola
                                        (counter eL1 eL2 0))))
                                
 
+#|
+Operacion: Otro
+Descripcion: consulta si dos listas de elementos tienen un solo elemento en comun
+Dominio: elementsList X elementsList
+Recorrido: boolean
+|#
 (define oneCommonElement? (lambda (eL1 eL2)
                             (if (= 1 ((commonElements eL1) eL2))
                                 #t
                                 #f)))
 
+#|
+Operacion: Otro
+Descripcion: inserta x cantidad de elementos a una lista de elementos, respetando que este elemento no se encuentra ya en esta.
+Dominio: elementsList X int
+Recorrido: elementsList
+Recursion: de Cola
+|#
 (define insertXElements (lambda (eL x)
                           (define recursion (lambda (i x eL2)
                                        (if (= i x)
@@ -139,6 +185,14 @@ Recursion: Cola
                                                (recursion i (- x 1) (insertElement (element x) eL2))))))
                           (recursion 0 x null)))
 
+#|
+Operacion: Otro
+Descripcion: consulta si dos listas de elementos son iguales
+Dominio: elementsList X (elementsList)
+Recorrido: boolean
+Recursion: de Cola
+Funcion currificada
+|#
 (define elementsList=? (lambda (eL1) (lambda (eL2)
                          (define recursion (lambda (eL1 eL2)
                            (if (null? eL1)
