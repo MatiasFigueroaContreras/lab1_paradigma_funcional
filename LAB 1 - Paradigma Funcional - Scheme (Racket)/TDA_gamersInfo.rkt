@@ -35,9 +35,9 @@
                        (if (and (> numG numRG) (> (totalGamers newG) numRG))
                            (gamersInfo numG gTurn newG (registerNewGamerPoint gP))
                            gI)))))
-(define addScore (lambda (gI)
+(define addScore (lambda (gI scoreNum)
                    (let ([numG (getNumG gI)] [gTurn (getTurn gI)] [g (getGamers gI)] [gP (getGamersPoints gI)])
-                     (gamersInfo numG gTurn g (addPoints gP 1 gTurn)))))
+                     (gamersInfo numG gTurn g (addPoints gP scoreNum gTurn)))))
 
 (define getWinners (lambda (gI)
                      (define recursion (lambda (g gP R max)
@@ -58,7 +58,7 @@
                     (recursion (getGamers gI) (getGamersPoints gI) null (maxPoints (getGamersPoints gI)))))
 
 (define winnersLosersString (lambda (gI)
-                        (string-append* (string-append* "Ganadores:\n" (cdr (append* (map (lambda (x) (list ", " x)) (getWinners gI))))) "\n\nPerdedores:\n" (cdr (append* (map (lambda (x) (list ", " x)) (getLosers gI)))))))
+                        (string-append* (string-append* "Ganadores:\n" (cdr (append* (map (lambda (x) (list ", " x)) (getWinners gI))))) "\nPerdedores:\n\n" (cdr (append* (map (lambda (x) (list ", " x)) (getLosers gI)))))))
 
 (define gamersInfo->string (lambda (gI)
                              (define gamersNamesPoints->string (lambda (g gP i string)

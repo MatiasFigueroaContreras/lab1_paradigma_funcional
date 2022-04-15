@@ -82,7 +82,7 @@ Recursion: Natural
 |#
 (define nthGamer (lambda (gamers n)
                    (if (null? gamers)
-                       null
+                       ""
                        (if (= n 1)
                            (firstGamer gamers)
                            (nthGamer (nextGamers gamers) (- n 1))))))

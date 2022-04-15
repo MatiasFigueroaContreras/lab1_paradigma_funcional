@@ -4,7 +4,7 @@
 (require "TDA_gamersInfo.rkt")
 (require "TDA_gameArea.rkt")
 (require "TDA_game.rkt")
-(require (only-in math/number-theory prime-power?))
+(require (only-in math/number-theory prime?))
 
 (define el (createElementsAndList "A" "B" "C" "D" "E" "F" "G"))
 
@@ -16,17 +16,32 @@
                    (modulo (+ (* a xn) c) m)
                  ))
 
+(define maxN (lambda (num max)
+               (if (<= num max)
+                   num
+                   (maxN (quotient num max) max))))
+
+(define minMaxN (lambda (num min max)
+                  (define rec (lambda (i R)
+                    (cond
+                      [(= i num) R]
+                      [(<= max R) (rec (+ i 1) min)]
+                      [else (rec (+ i 1) (+ R 1))])))
+                  (if (and (<= min num) (<= num max))
+                      num
+                      (rec 1 min))))
+                   
 (define cardsSet (lambda (elements numE maxC rndFn)
-                   (let ([nCards (+ (- (* numE numE) numE) 1)] [n (- numE 1)])
-                     (if (prime-power? n)
+                   (let ([nCards (+ (- (* numE numE) numE) 1)] [n (- numE 1)] [randomN (maxN (rndFn (* numE numE maxC 27)) (* numE (+ (- (* numE numE) numE) 1)))])
+                     (if (prime? n)
                          (if (<= maxC 0)
                              (cardsSet elements numE nCards rndFn)
                              (if (< (elementsListLenght elements) nCards)
                                  (let ([newElements (insertXElements elements (- nCards (elementsListLenght elements)))])
-                                   (insertCard (firstCardGeneration newElements n) (unionCardsSet (nCardGeneration newElements n (- maxC 1)) (n2CardGeneration newElements n (- maxC numE)))))
-                                 (insertCard (firstCardGeneration elements n) (unionCardsSet (nCardGeneration elements n (- maxC 1)) (n2CardGeneration elements n (- maxC numE))))))
+                                  (mixCardsSetXtimes (insertCard (firstCardGeneration newElements n) (unionCardsSet (nCardGeneration newElements n (- maxC 1)) (n2CardGeneration newElements n (- maxC numE)))) randomN))
+                                 (mixCardsSetXtimes (insertCard (firstCardGeneration elements n) (unionCardsSet (nCardGeneration elements n (- maxC 1)) (n2CardGeneration elements n (- maxC numE)))) randomN)))
                          null))))
-                   
+
 
 (define dobble? (lambda (cS)
                   (cond
@@ -93,7 +108,7 @@
                            (recursion cS 1 "")))
 
 (define game(lambda (numPlayers cardsSet mode rndFn)
-               (list (initGamersInfo numPlayers) (setCardsSet emptyGameArea cardsSet) "esperando cartas en mesa" mode rndFn)))
+               (list (initGamersInfo numPlayers) (setCardsSet emptyGameArea (mixCardsSetXtimes cardsSet (* numPlayers (quotient (findTotalCards (firstCard cardsSet)) (numCards cardsSet))))) "esperando cartas en mesa" mode rndFn)))
 
 (define stackMode (lambda (cS)
                     (if (or (emptyCardsSet? cS) (emptyCardsSet? (nextCards cS)) )
@@ -131,12 +146,11 @@
                    (let ([gsInfo (getGamersInfo gm)] [gA (getGameArea gm)] [st (status gm)] [mode (getMode gm)] [rndFn (getRandomFn gm)])
                      (let ([cS (cardsSetSubstraction (getCardsSet gA) (getCardsInPlay gA))])
                        (if (string=? st "spotIt")
-                           (setGame (nextTurn (addScore gsInfo)) (setCardsSet (setCardsInPlay gA null) cS) "esperando cartas en mesa" mode rndFn)
+                           (setGame (nextTurn (addScore gsInfo 2)) (setCardsSet (setCardsInPlay gA null) cS) "esperando cartas en mesa" mode rndFn)
                            (setGame (nextTurn gsInfo) (setCardsSet (setCardsInPlay gA null) (unionCardsSet (reverseCardsSet cS) (getCardsInPlay gA))) "esperando cartas en mesa" mode rndFn)))))))
 
 (define finish (lambda (gm)
                  (let ([gsInfo (getGamersInfo gm)] [gA (getGameArea gm)] [st (status gm)] [mode (getMode gm)] [rndFn (getRandomFn gm)])
-                   (display (winnersLosersString gsInfo))
                    (setGame gsInfo gA "terminado" mode rndFn))))
 
 (define status (lambda (gm) (caddr gm)))
@@ -146,10 +160,18 @@
 (define game->string (lambda (gm)
                        (let ([gsInfo (getGamersInfo gm)] [st (status gm)])
                          (if (string=? "terminado" st)
-                             (string-append* "Estatus del juego: " st "\n" (winnersLosersString gsInfo) "\n" (gamersInfo->string gsInfo))
+                             (string-append* "Estatus del juego: " st "\n" (winnersLosersString gsInfo) "\n" (gamersInfo->string gsInfo) null)
                              (string-append* "Estatus del juego: " st "\n" (gamersInfo->string gsInfo) null)))))
 
 (define addCard (lambda (cS card)
                   (if (dobble? (cons card cS))
                       (cons card cS)
                       cS)))
+
+(define emptyHandsStackMode (lambda (cS)
+                              (if (< (numCards cS) 2)
+                                  emptyCardsSet
+                                  (let ([nC (numCards cS)] [rE (requiredElements (firstCard cS))])
+                                    (insertCard (firstCard cS) (insertCard (nthCard cS (minMaxN (maxN (randomFn (* nC rE 324 )) (+ nC rE 14)) (quotient nC 2) (- nC 1 ) )) emptyCardsSet))))))
+
+

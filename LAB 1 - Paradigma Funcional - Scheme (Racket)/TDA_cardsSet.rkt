@@ -152,3 +152,21 @@ Dominio: cardsSet
 Recorrido: cardsSet
 |#
 (define reverseCardsSet (lambda (cS) (unionCardsSet cS null)))
+
+
+(define mixCardsSet (lambda (cS)
+                      (define numCards (lambda (cSn)
+                                         (apply + (map (lambda (x) 1) cSn))))
+                      (define splitCardsSet(lambda (cS1 n i R)
+                        (if (= (quotient n 2) i)
+                            (cons R (list cS1))
+                            (splitCardsSet (nextCards cS1) n (+ i 1) (cons (firstCard cS1) R)))))
+                        (if (< (numCards cS) 2)
+                            cS
+                            (let ([spCs (splitCardsSet cS (numCards cS) 0 null)])
+                              (unionCardsSet (mixCardsSet (cadr spCs)) (mixCardsSet (car spCs)))))))
+
+(define mixCardsSetXtimes (lambda (cS x)
+                            (if (= x 0)
+                                cS
+                                (mixCardsSetXtimes (mixCardsSet cS) (- x 1)))))
