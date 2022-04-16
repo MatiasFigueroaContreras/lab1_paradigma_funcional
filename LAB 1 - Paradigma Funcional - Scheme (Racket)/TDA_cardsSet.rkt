@@ -135,6 +135,7 @@ Operacion: Otro
 Descripcion: hace la resta de dos set de cartas (funciona igual que una resta de conjuntos)
 Dominio: cardsSet X cardsSet
 Recorrido: cardsSet
+Recursion: de Cola
 |#
 (define cardsSetSubstraction (lambda (cS1 cS2)
                                (define recursion (lambda (cS1 cSR)
@@ -153,7 +154,13 @@ Recorrido: cardsSet
 |#
 (define reverseCardsSet (lambda (cS) (unionCardsSet cS null)))
 
-
+#|
+Operacion: Otro
+Descripcion: mezcla un cardsSet
+Dominio: cardsSet
+Recorrido: cardsSet
+Recursion: de Cola
+|#
 (define mixCardsSet (lambda (cS)
                       (define numCards (lambda (cSn)
                                          (apply + (map (lambda (x) 1) cSn))))
@@ -166,6 +173,13 @@ Recorrido: cardsSet
                             (let ([spCs (splitCardsSet cS (numCards cS) 0 null)])
                               (unionCardsSet (mixCardsSet (cadr spCs)) (mixCardsSet (car spCs)))))))
 
+#|
+Operacion: Otro
+Descripcion: mezcla un cardsSet x veces
+Dominio: cardsSet X int
+Recorrido: cardsSet
+Recursion: de Cola
+|#
 (define mixCardsSetXtimes (lambda (cS x)
                             (if (= x 0)
                                 cS

@@ -10,7 +10,7 @@ TDA elemntsList (lista de elementos, por lo tanto, este puede representar tanto 
 #|
 Operacion: Constructor
 Descripcion: crea una lista de elementos
-Dominio: elements (puedens ser varios)
+Dominio: elements (pueden ser varios)
 Recorrido: elementsList
 |#
 (define createElementsList (lambda x (if (elementsList? x)
@@ -28,18 +28,20 @@ Recorrido: elementsList
                                     (force eL)
                                     null)))
 
-(define createElementsList-NtoM (lambda (start end)
-                                  (define recursion (lambda (i eL)
-                                                      (if (< i start)
-                                                          eL
-                                                          (recursion (- i 1) (insertElement (element i) eL)))))
-                                  (recursion end null)))
+#|
+Operacion: Constructor
+Descripcion: crea una lista de elementos vacia
+Dominio:
+Recorrido: elementsList
+|#
+(define emptyElementsList null)
 
 #|
 Operacion: Pertenencia
 Descripcion: verifica si una lista de elementos efectivamente lo es.
 Dominio: elementsList
 Recorrido: boolean
+Recursion: de Cola
 |#
 (define elementsList? (lambda (eL)
                          (define recursion (lambda (eL1 eL2)

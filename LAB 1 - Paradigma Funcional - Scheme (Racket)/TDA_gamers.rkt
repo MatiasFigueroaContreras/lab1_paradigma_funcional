@@ -10,7 +10,7 @@ Recorrido: gamers
 (define initGamers null)
 
 #|
-Operacion: Pertenencia
+Operacion: otro
 Descripcion: consulta si un conjunto de jugadores(gamers) es vacio
 Dominio: gamers
 Recorrido: boolean
@@ -81,7 +81,7 @@ Recorrido: string(gamer)
 Recursion: Natural
 |#
 (define nthGamer (lambda (gamers n)
-                   (if (null? gamers)
+                   (if (emptyGamers? gamers)
                        ""
                        (if (= n 1)
                            (firstGamer gamers)
