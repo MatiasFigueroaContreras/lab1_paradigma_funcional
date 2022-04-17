@@ -153,7 +153,9 @@ Dominio: gamersInfo
 Recorrido: string
 |#
 (define winnersLosersString (lambda (gI)
-                        (string-append* "\nResultados:" (string-append* "\nGanadores:\n" (cdr (append* (map (lambda (x) (list ", " x)) (getWinners gI))))) "\nPerdedores:\n" (cdr (append* (map (lambda (x) (list ", " x)) (getLosers gI)))))))
+                        (if (null? (getLosers gI))
+                            (string-append* "\nResultados:" (string-append* "\nGanadores:\n" (cdr (append* (map (lambda (x) (list ", " x)) (getWinners gI))))) "\nNo hay perdedores" null)
+                            (string-append* "\nResultados:" (string-append* "\nGanadores:\n" (cdr (append* (map (lambda (x) (list ", " x)) (getWinners gI))))) "\nPerdedores:\n" (cdr (append* (map (lambda (x) (list ", " x)) (getLosers gI))))))))
 
 #|
 Operacion: otro

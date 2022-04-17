@@ -159,7 +159,7 @@ Operacion: Otro
 Descripcion: mezcla un cardsSet
 Dominio: cardsSet
 Recorrido: cardsSet
-Recursion: de Cola
+Recursion: Arborea
 |#
 (define mixCardsSet (lambda (cS)
                       (define numCards (lambda (cSn)

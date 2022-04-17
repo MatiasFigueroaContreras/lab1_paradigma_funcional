@@ -66,9 +66,9 @@ Dominio: CardsSet X int
 Recorrido: elementsList (card)
 |#
 (define nthCard (lambda (cS n)
-                  (if (= n 0)
-                         (firstCard cS)
-                         (nthCard (nextCards cS) (- n 1)))))
+                   (if (or (> n (numCards cS)) (< n 0))
+                       emptyElementsList
+                       (firstCard (filter (lambda (card) (= (index-of cS card) n))  cS)))))
 
 #|
 Operacion: Otro
@@ -78,7 +78,10 @@ Recorrido: int
 |#
 (define findTotalCards (lambda (card)
                          (define totalCards (lambda (numE) (+ (- (* numE numE) numE) 1)))
-                         (totalCards (elementsListLenght card))))
+                         (let ([numElements (elementsListLenght card)])
+                           (if (or (= numElements 0) (not (prime? (- numElements 1))))
+                               0
+                               (totalCards (elementsListLenght card))))))
 
 #|
 Operacion: Otro
@@ -87,8 +90,11 @@ Dominio: elementsList (card)
 Recorrido: int
 |#
 (define requiredElements (lambda (card)
-                         (define totalCards (lambda (numE) (+ (- (* numE numE) numE) 1)))
-                         (totalCards (elementsListLenght card))))
+                         (define totalElements (lambda (numE) (+ (- (* numE numE) numE) 1)))
+                         (let ([numElements (elementsListLenght card)])
+                           (if (or (= numElements 0) (not (prime? (- numElements 1))))
+                               0
+                               (totalElements (elementsListLenght card))))))
 
 #|
 Operacion: Otro
@@ -304,3 +310,108 @@ Recorrido: cardsSet
                           (insertCard (nthCard  cS (minMaxN (maxN (randomFn (* nC prt 28)) (+ (* prt 22) 12)) 0 (- prt 1)))
                                                (insertCard (nthCard cS (minMaxN (maxN (randomFn (* nC prt 35)) (+ (* prt 7) 1)) prt (- (* prt 2) 1)))
                                                            (insertCard (nthCard cS (minMaxN (maxN (randomFn (* nC prt 35)) (+ (* prt 7) 1)) (* prt 2) (- (* prt 3) 1))) emptyCardsSet))))))))
+
+
+;Ejemplos de uso de las funciones:
+
+
+;cardsSet
+(define el (createElementsAndList "A" "B" "C" "D" "E" "F" "G")) ;Lista de elementos
+(define cardsSet1 (cardsSet el 3 -1 randomFn)) ;Se prueba con 3 elementos por carta y el maximo de cartas que se pueden generar
+(define cardsSet2 (cardsSet el 5 -1 randomFn)) ;Se prueba con un numero no primo (- 5 1) = 4, lo que genera un cardsSet vacio
+(define cardsSet3 (cardsSet el 8 34 randomFn)) ;Se prueba con 8 elementos y un maximo de cartas establecido en 34, en este caso agrega los elementos faltantes para poder generar un cardsSet
+
+;dobble?
+(define dobble1 (dobble? cardsSet1)) ;Set de cartas valido, ya que fue generado anteriormente
+(define dobble2 (dobble? cardsSet2)) ;Set de cartas no valido, ya que es vacio
+(define dobble3 (dobble? cardsSet3)) ;Otro set de cartas valido, ya definido antes
+(define dobble4 (dobble? (insertCard (createElementsAndList "A" "1" "A") cardsSet1))) ;Se le agrega una carta no valida al cardsSet1, por lo tanto es no valido
+
+;numCards
+(define numCards1 (numCards cardsSet1)) ;Son 7 cartas, ya que es el maximo generado con 3 elementos
+(define numCards2 (numCards cardsSet2)) ;Arroja 0, ya que el cardsSet es vacio
+(define numCards3 (numCards cardsSet3)) ;Arroja el numero de cartas establecido de 34
+
+;nthCard
+(define nthCard1 (nthCard cardsSet1 0)) ;Arroja la primera carta del cardsSet1
+(define nthCard2 (nthCard cardsSet2 3)) ;Arroja una carta vacia (emptyElementsList) ya que el cardsSet es vacio
+(define nthCard3 (nthCard cardsSet3 33)) ;Arroja la ultima carta del cardsSet3
+
+;findTotalCards
+(define findTotalCards1 (findTotalCards (firstCard cardsSet1))) ;Total de cartas 7
+(define findTotalCards2 (findTotalCards '())) ;Carta vacia por lo tanto 0
+(define findTotalCards3 (findTotalCards (firstCard cardsSet3))) ;Total Cartas 57, que es el maximo a generar
+(define findTotalCards4 (findTotalCards '("A" "B" "C" "D"))) ;Total Cartas 13 para los 4 elementos
+(define findTotalCards5 (findTotalCards '("A" "B" "C" "D" "E"))) ;Total cartas 0, ya que no es un numero primo de cartas
+
+;requiredElements
+(define requiredElements1 (requiredElements (firstCard cardsSet1))) ;Total de elementos 7
+(define requiredElements2 (requiredElements '())) ;Carta vacia por lo tanto 0
+(define requiredElements3 (requiredElements (firstCard cardsSet3))) ;Total elementos 57, que son los necesarios
+(define requiredElements4 (requiredElements '("A" "B" "C" "D"))) ;Total elementos 13
+(define requiredElements5 (requiredElements '("A" "B" "C" "D" "E"))) ;Total elementos 0, ya que no es un numero primo de cartas
+
+;missingCards
+(define missingCards1 (missingCards cardsSet1)) ;0 cartas faltantes ya que el cardsSet1 es completo por lo tanto devuelve un emptyCardsSet 
+(define missingCards2 (missingCards cardsSet2)) ;0 cartas faltantes ya que el cardsSet2 es vacio por lo tanto devuelve un emptyCardsSet 
+(define missingCards3 (missingCards cardsSet3)) ;devuelve las 23 cartas faltantes del cardsSet3
+
+;cardsSet->string
+(define cardsSet->string1 (cardsSet->string cardsSet1))
+(define cardsSet->string2 (cardsSet->string cardsSet2))
+(define cardsSet->string3 (cardsSet->string cardsSet3))
+
+;game
+(define game1 (game 4 cardsSet1 stackMode randomFn)) ;game con stackMode
+(define game2 (game 3 cardsSet1 emptyHandsStackMode randomFn)) ;game con emptyHandsStackMode
+(define game3 (game 5 cardsSet3 myMode randomFn)) ;game con myMode
+
+;stackMode
+(define stackMode1 (stackMode cardsSet1)) ;primeras cartas del cardsSet1
+(define stackMode2 (stackMode cardsSet2)) ;emptyCardsSet, ya que el cardsSet2 es vacio
+(define stackMode3 (stackMode cardsSet3)) ;primeras cartas del cardsSet3
+
+;register
+(define register1 (register "user1" (register "user2" (register "user1" game1)))) ;Prueba de registro con mismo usuario, devuelve solo con user1 y user2
+(define register2 (register "user4" (register "user3" (register "user2" (register "user1" game2))))) ;prueba de registro con un usuario de mas, devuelve con user1, user2, y user3
+(define register3 (register "user3" (register "user2" (register "user1" game3)))) ;Registro normal con 3 de los 5 jugadores posibles a registrar
+
+;whoseTurnIsIt?
+(define whoseTurnIsIt1 (whoseTurnIsIt? register1)) ;Turno sin jugadas, por lo tanto arroja el primer jugador registrado
+(define whoseTurnIsIt2 (whoseTurnIsIt? (play (play register2 null) pass))) ;Paso un turno, por lo tanto arroja el segundo jugador registrado
+(define whoseTurnIsIt3 (whoseTurnIsIt? (play (play (play (play register3 null) pass) null) pass))) ;Paso dos turno, por lo tanto arroja el tercer jugador registrado
+
+;play
+(define play1 (play (play (play (play (play (play register1 null) (spotIt "A")) pass) null) pass) null)) ;juego con cartas en mesa, y con distintos tipos de jugadas
+(define play2 (play (play (play (play (play (play register2 null) (spotIt "B")) pass) null) (spotIt "F")) finish)) ;juego terminado
+(define play3 (play (play (play (play (play (play (play (play (play register2 null) (spotIt "A")) pass) null) (spotIt "C")) null) (spotIt "E")) pass) finish)) ;juego con terminado, y con distintos tipos de jugadas
+
+;status
+(define status1 (status play1))
+(define status2 (status play2))
+(define status3 (status play3))
+
+;score
+(define score1 (score play1 "user2"))
+(define score2 (score play2 "user1"))
+(define score3 (score play3 "user5"))
+
+;game->string
+(define game->string1 (game->string play1)) ;Mustra las cartas en juego
+(define game->string2 (game->string play2)) ;Muestra el ganador y los perdedores
+(define game->string3 (game->string play3)) ;Muestra los "ganadores"
+
+;addCard
+(define addCard1 (addCard cardsSet1 (list "A" "B" "C"))) ;Agrega cartas que ya estan presentes, por lo tanto devuelve el cardsSet1
+(define addCard2 (addCard (addCard (addCard emptyCardsSet (list "B" "E" "F")) (list "A" "D" "E")) (list "A" "B" "C"))) ;Agrega cartas validas
+(define addCard3 (addCard (addCard (addCard emptyCardsSet (list "B" "E" "F")) (list "A" "B" "E")) (list "A" "B" "C"))) ;Se agregan solo las cartas validas
+
+;emptyHandsStackMode
+(define emptyHandsStackMode1 (emptyHandsStackMode cardsSet1)) ;primera carta del cardsSet1, y una "random" de la segunda mitad
+(define emptyHandsStackMode2 (emptyHandsStackMode cardsSet2)) ;emptyCardsSet, ya que el cardsSet2 es vacio
+(define emptyHandsStackMode3 (emptyHandsStackMode cardsSet3)) ;primera carta del cardsSet3, y una "random" de la segunda mitad
+
+;myMode
+(define myMode1 (myMode cardsSet1)) ;3 cartas "random" entre 3 particiones del cardsSet1
+(define myMode2 (myMode cardsSet2)) ;emptyCardsSet, ya que el cardsSet2 es vacio
+(define myMode3 (myMode cardsSet3)) ;3 cartas "random" entre 3 particiones del cardsSet3
