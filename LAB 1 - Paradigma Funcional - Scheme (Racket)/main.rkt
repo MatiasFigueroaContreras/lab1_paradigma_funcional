@@ -10,7 +10,7 @@
 
 #|
 Operacion: Constructor
-Descripcion: Agrega un puntaje dado al gamersPoints en la posicion n
+Descripcion: Crea un mazo de cartas dobble.
 Dominio: elementsList X int(numero de elementos) X int (maxima cantidad de cartas) X rndnFn (funcion de aleatorizacion)
 Recorrido: cardsSet
 Recursion: de Cola
