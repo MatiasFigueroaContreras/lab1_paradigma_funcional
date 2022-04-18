@@ -4,6 +4,7 @@
 (require "TDA_gamersInfo.rkt")
 (require "TDA_gameArea.rkt")
 (require "TDA_game.rkt")
+(require "TDA_element.rkt")
 (require "helperFunctions.rkt")
 (require (only-in math/number-theory prime?))
 
@@ -33,11 +34,21 @@ Recorrido: boolean
 Recursion: de Cola
 |#
 (define dobble? (lambda (cS)
+                  (define myAndMap(lambda (f l)
+                                    (if (null? l)
+                                        #t
+                                        (if (f (firstCard l))
+                                            (myAndMap f (nextCards l))
+                                            #f))))
+                  (define myMap (lambda (f l)
+                                  (if (null? (nextElements l))
+                                      (cons (f (firstElement l)) null)
+                                      (cons (f (firstElement l)) (myMap f (nextElements l))))))
                   (cond
                     [(emptyCardsSet? cS) #f]
                     [(not (prime? (- (elementsListLenght (firstCard cS)) 1))) #f]
-                    [(not (andmap elementsList? cS)) #f]
-                    [(not (andmap (lambda (x) (= (elementsListLenght (firstCard cS)) x)) (map elementsListLenght cS))) #f]
+                    [(not (myAndMap elementsList? cS)) #f]
+                    [(not (myAndMap (lambda (x) (= (elementsListLenght (firstCard cS)) x)) (myMap elementsListLenght cS))) #f]
                     [else
                      (define recursion (lambda (cS1 cS2)
                                              (define recursion2 (lambda (cS3)

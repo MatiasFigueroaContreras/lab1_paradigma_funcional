@@ -9,10 +9,10 @@ TDA Element (Referencia a un elemento o simbolo en el juego dobble)
 #|
 Operacion: Constructor
 Descripcion: crea un elemento
-dominio: number + string
+dominio: number + string + char
 recorrido: element
 |#
-(define element (lambda (x) (if (number? x) (number->string x) x)))
+(define element (lambda (x) (if (number? x) (number->string x) (if (string? x) x (string x)))))
 
 #|
 Operacion: Pertenencia
