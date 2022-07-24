@@ -1,1 +1,1 @@
-# LAB 1 Paradigmas de Programacion | Paradigma Logico | Scheme (Racket)
+LAB 1 Paradigmas de Programacion | Paradigma Funcional | Scheme (Racket)
